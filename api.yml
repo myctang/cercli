@@ -1,0 +1,234 @@
+openapi: 3.0.3
+info:
+  title: Employee Management System API
+  version: 1.0.0
+  description: |-
+    API specification of the Employee Management System
+servers:
+  - url: https://localhost:8080/api
+tags:
+  - name: employees
+    description: Employees related endpoints
+  - name: holidays
+    description: Holidays related endpoints
+paths:
+  /employees:
+    get:
+      tags:
+        - employees
+      description: Get a list of all employees
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+    post:
+      tags:
+        - employees
+      description: Create an employee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '400':
+          description: Invalid request
+
+  /employees/{employeeId}:
+    get:
+      tags:
+        - employee
+      description: Get information about an employee
+      parameters:
+        - name: employeeId
+          in: path
+          description: 'Id of an employee'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '404':
+          description: User not found
+
+  /employees/updateSalary:
+    post:
+      tags:
+        - employee
+      description: Update salary of an employee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeUpdateSalaryRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '404':
+          description: User not found
+
+  /holidays/employees/{employeeId}:
+    get:
+      tags:
+        - holidays
+      description: Get holidays of a user for the upcoming 7 days
+      parameters:
+        - name: employeeId
+          in: path
+          description: 'Id of an employee'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Holiday'
+        '404':
+          description: User not found
+
+components:
+  schemas:
+    Employee:
+      type: object
+      description: Employee data
+      required:
+        - id
+        - state
+        - name
+        - position
+        - email
+        - location
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          example: '31ca536e-fcd3-44a5-8332-3b7cb2648115'
+        state:
+          type: string
+          enum:
+            - ACTIVE
+            - DEACTIVATED
+        name:
+          type: string
+          example: 'John Black'
+        position:
+          type: string
+          example: 'Manager'
+        email:
+          type: string
+          example: 'john@google.com'
+        salary:
+          $ref: '#/components/schemas/Money'
+        location:
+          $ref: '#/components/schemas/Location'
+        createdAt:
+          type: string
+          description: Created date in UTC
+          example: '2024-06-08T18:55:17.211359Z'
+        updatedAt:
+          type: string
+          description: Updated date in UTC
+          example: '2024-06-08T18:55:17.211359Z'
+
+    Holiday:
+      type: object
+      description: Information about a holiday
+      required:
+        - date
+      properties:
+        date:
+          type: string
+          example: '2024-05-05'
+
+    EmployeeCreateRequest:
+      type: object
+      description: Request data to create an employee
+      required:
+        - name
+        - position
+        - email
+        - salary
+        - location
+      properties:
+        name:
+          type: string
+          example: 'John Black'
+        position:
+          type: string
+          example: 'Manager'
+        email:
+          type: string
+          example: 'john@google.com'
+        salary:
+          $ref: '#/components/schemas/Money'
+        location:
+          $ref: '#/components/schemas/Location'
+
+    EmployeeUpdateSalaryRequest:
+      type: object
+      description: Request data to update the salary of an employee
+      required:
+        - employeeId
+        - salary
+      properties:
+        employeeId:
+          type: string
+          example: '31ca536e-fcd3-44a5-8332-3b7cb2648115'
+        salary:
+          $ref: '#/components/schemas/Money'
+
+    Money:
+      type: object
+      required:
+        - minorAmount
+        - currency
+      properties:
+        minorAmount:
+          type: integer
+          format: int64
+          description: Amount in minor value
+          example: 100
+        currency:
+          type: string
+          enum:
+            - USD
+            - EUR
+            - AED
+    Location:
+      type: object
+      description: Location of residency
+      required:
+        - countryId
+      properties:
+        countryId:
+          type: integer
+          example: 1
+        zoneId:
+          type: integer
+          example: 1
